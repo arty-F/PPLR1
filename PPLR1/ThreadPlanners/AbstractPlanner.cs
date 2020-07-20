@@ -31,8 +31,8 @@ namespace PPLR1
             if (students == null)
                 students = DataGenerator.GetStudents(this.equipments, maxCpuBurst, maxThreadPriority).OrderBy(s => s.Priority);
 
-            this.students = students.ToList();              
-            logger.LogStudents(this.students.ToList());                 //Вывод отсортированного списка студентов                         
+            this.students = students.OrderBy(s => s.Priority).ToList();              
+            logger.LogStudents(this.students);                          //Вывод отсортированного списка студентов                         
             logger.LogResources(this.teachers, this.equipments);        //Вывод списка ресурсов
         }
 

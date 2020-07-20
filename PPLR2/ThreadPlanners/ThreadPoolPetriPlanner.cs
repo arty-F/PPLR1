@@ -29,6 +29,12 @@ namespace PPLR2
                     }
         }
 
+        private void EndWork()
+        {
+            lock (pool)
+                --busyThreadsCount;
+        }
+
         protected override void StartMaxThreads()
         {
             RunPool();
@@ -55,8 +61,7 @@ namespace PPLR2
             lock (logger)
                 logger.LogCard(card as Card, Thread.CurrentThread.ManagedThreadId);
 
-            lock (pool)
-                --busyThreadsCount;
+            EndWork();
             
             RunPool();
         }

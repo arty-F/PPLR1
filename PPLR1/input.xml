@@ -39,11 +39,10 @@
     <equipment name="Рефрактометр" count="2"/>
     <equipment name="Весы" count="1"/>
     <equipment name="Калькулятор" count="2"/>
-    <equipment name="Аккумулятор" count="3"/>
   </equipments>
 
   <!--Количество студентов. Минимальное - 1.-->
-  <ns>6</ns>
+  <ns>5</ns>
   <!--Максимальное количество оборудования, которое нужно студенту для сдачи
   Не может быть больше значения <ne> количества оборудования. Минимальное - 1.-->
   <semax>4</semax>
@@ -51,13 +50,18 @@
   Далее идет список оборудования, необходимого для сдачи предмета. Если имя оборудования не совпадает
   ни с одним оборудованием из списка оборудования <equipments>, то будет сгенерированно случайным образом.-->
   <students>
-    <student lname="Егоров" fname="Егор" patr="Егорович" group="2а3б" prior="10" eqcount="2" cpuburst="5">
+    <student lname="Егоров" fname="Егор" patr="Егорович" group="2а3б" prior="10" eqcount="2" cpuburst="4">
       <equipments>
         <equipment name="Вольтметр"/>
         <equipment name="Весы"/>
       </equipments>
     </student>
-    <student lname="Антонов" fname="Антон" patr="Антонович" group="2а3б" prior="12" eqcount="1" cpuburst="8">
+    <student lname="Антонов" fname="Антон" patr="Антонович" group="2а3б" prior="12" eqcount="1" cpuburst="3">
+      <equipments>
+        <equipment name="Калькулятор"/>
+      </equipments>
+    </student>
+    <student lname="Васильев" fname="Василий" patr="Васильевич" group="2а3б" prior="10" eqcount="1" cpuburst="5">
       <equipments>
         <equipment name="Калькулятор"/>
       </equipments>

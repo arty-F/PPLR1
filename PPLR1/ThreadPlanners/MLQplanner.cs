@@ -39,6 +39,7 @@ namespace PPLR1
         protected override void StartPassExam(object examProcess)
         {
             var exam = examProcess as ExamProcess;
+            
             Thread.Sleep(quantDuration);
             --exam.Student.SubjectToPassing.RemainingTime;
 
@@ -58,7 +59,7 @@ namespace PPLR1
             StartMaxThreads();
         }
 
-        //Определяет перемещать ли студента в следующую очередь, а также инициализирует списки очередей
+        //Определяет перемещать ли студента в следующую очередь
         private void NextQueueOrEnd(ExamProcess exam)
         {
             lock (students)

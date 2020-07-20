@@ -15,7 +15,7 @@ namespace PPLR2
         internal PlainType PlainType { get; } = PlainType.ThreadArraySemaphore;
         internal int ArrayLength { get; } = 25;
         internal int ThreadsCount { get; }
-        internal int Pause { get; }
+        internal int Pause { get; } = 100;
         internal List<Card> Cards { get; } = new List<Card>();
 
         /// <summary>
