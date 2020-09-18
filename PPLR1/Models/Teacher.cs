@@ -1,4 +1,6 @@
-﻿namespace PPLR1.Models
+﻿using System.Linq;
+
+namespace PPLR1.Models
 {
     /// <summary>
     /// Преподаватель
@@ -9,6 +11,8 @@
         internal string FirstName { get; private set; }
         internal string Patronymic { get; private set; }
         internal int NumberOfStudents { get; set; }
+        internal int MaxNumberOfStudents { get; private set; }
+        internal string Id { get; private set; }
 
         internal Teacher(string lastName, string firstName, string patronymic, int numberOfStudent)
         {
@@ -16,8 +20,12 @@
             FirstName = firstName;
             Patronymic = patronymic;
             NumberOfStudents = numberOfStudent;
+            MaxNumberOfStudents = NumberOfStudents;
+            Id = $"{LastName.First()}{FirstName.First()}{Patronymic.First()}";
         }
 
-        public override string ToString() => $"{LastName} {FirstName} {Patronymic} (осталось :{NumberOfStudents})";
+        internal string Status() => $"{Id} {NumberOfStudents}/{MaxNumberOfStudents}";
+
+        public override string ToString() => $"{LastName} {FirstName} {Patronymic} {NumberOfStudents}/{MaxNumberOfStudents} (Id: {Id})";
     }
 }

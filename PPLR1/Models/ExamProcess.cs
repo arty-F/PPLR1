@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace PPLR1.Models
 {
@@ -42,6 +43,7 @@ namespace PPLR1.Models
                 var maxPriority = students.Min(s => s.Priority);
                 Student = students.Where(s => s.Priority == maxPriority).First();
                 students.Remove(Student);
+                Student.CurrentState = CurrentThreadState.R;
 
                 foreach (var eqName in Student.SubjectToPassing.EquipmentNames)
                 {
@@ -55,7 +57,7 @@ namespace PPLR1.Models
                     throw new Exception($"Преподаватель <{Teacher}> уже занят.");
                 --Teacher.NumberOfStudents;
 
-                logger.LogTakenResources(this, plainType, QueueLevel);
+                //logger.LogTakenResources(this, plainType, QueueLevel);
             }
         }
 
@@ -73,9 +75,15 @@ namespace PPLR1.Models
                         throw new Exception($"Попытка освободить несуществующий ресурс {eqName}.");
                     ++eq.Count;
                 }
+
+                if (Student.SubjectToPassing.RemainingTime > 0)
+                    Student.CurrentState = CurrentThreadState.W;
+                else
+                    Student.CurrentState = CurrentThreadState.F;
+                
                 ++Teacher.NumberOfStudents;
 
-                logger.LogReleasedResources(this, threadId, plainType, QueueLevel);
+                //logger.LogReleasedResources(this, threadId, plainType, QueueLevel);
             }
         }
     }

@@ -46,14 +46,14 @@ namespace PPLR1
         /// </summary>
         internal void LogTakenResources(ExamProcess exam, PlainType plainType, int queueLevel)
         {
-            if (plainType == PlainType.MLQ)
-                sb.Append($"(очередь :{queueLevel}) ");
+            //if (plainType == PlainType.MLQ)
+            //    sb.Append($"(q :{queueLevel}) ");
             
-            sb.Append($"{exam.Student} занимает: ");
+            sb.Append($"{exam.Student.Status()} started | ");
             foreach (var eqName in exam.Student.SubjectToPassing.EquipmentNames)
-                sb.Append($"<{exam.Equipments.Where(e => e.Name == eqName).FirstOrDefault()}> ");
+                sb.Append($"<{exam.Equipments.Where(e => e.Name == eqName).FirstOrDefault().Status()}> ");
 
-            sb.AppendLine($"и начинает сдачу у <{exam.Teacher}>.");
+            sb.AppendLine($"<{exam.Teacher.Status()}>");
             Output();
         }
 
@@ -62,28 +62,17 @@ namespace PPLR1
         /// </summary>
         internal void LogReleasedResources(ExamProcess exam, int threadId, PlainType plainType, int queueLevel = 0)
         {
-            switch (plainType)
-            {
-                case PlainType.LCFS:
-                    sb.Append($"{exam.Student} закончил сдачу в потоке №{threadId} и освобождает: ");
-                    break;
+            sb.Append(exam.Student.Status());
 
-                case PlainType.MLQ:
-                    if (exam.Student.SubjectToPassing.RemainingTime > 0)
-                        sb.Append($"{exam.Student} перемещен в очередь :{queueLevel + 1} (CPU Burst :" +
-                            $"{exam.Student.SubjectToPassing.RemainingTime}), и освобождает: ");
-                    else
-                        sb.Append($"{exam.Student} окончательно закончил сдачу и освобождает: ");
-                    break;
-
-                default:
-                    throw new Exception("Неизвестный тип планирования.");
-            }
+            if (exam.Student.SubjectToPassing.RemainingTime > 0)
+                sb.Append($" release | ");
+            else
+                sb.Append($" finish  | ");
 
             foreach (var eqName in exam.Student.SubjectToPassing.EquipmentNames)
-                sb.Append($"<{exam.Equipments.Where(e => e.Name == eqName).FirstOrDefault()}> ");
+                sb.Append($"<{exam.Equipments.Where(e => e.Name == eqName).FirstOrDefault().Status()}> ");
 
-            sb.AppendLine($"и преподавателя <{exam.Teacher}>.");
+            sb.AppendLine($"<{exam.Teacher.Status()}>");
             Output();
         }
 
@@ -100,6 +89,30 @@ namespace PPLR1
             foreach (var equipment in equipments)
                 sb.Append($"{equipment} ");
             
+            sb.AppendLine();
+            Output();
+        }
+
+        /// <summary>
+        /// Вывод полного состояния системы в данный момент времени
+        /// </summary>
+        internal void LogCurrentState(IEnumerable<Teacher> teachers, IEnumerable<Equipment> equipments, IEnumerable<Student> students, int quantNumber)
+        {
+            sb.AppendLine($"Квант:{quantNumber}");
+            foreach (var stud in students)
+            {
+                sb.Append($"<{stud.Status()}> ");
+            }
+            sb.AppendLine();
+            foreach (var eq in equipments)
+            {
+                sb.Append($"<{eq.Status()}> ");
+            }
+            sb.AppendLine();
+            foreach (var te in teachers)
+            {
+                sb.Append($"<{te.Status()}> ");
+            }
             sb.AppendLine();
             Output();
         }

@@ -1,4 +1,6 @@
-﻿namespace PPLR1.Models
+﻿using System.Linq;
+
+namespace PPLR1.Models
 {
     /// <summary>
     /// Лабораторное оборудование
@@ -7,13 +9,19 @@
     {
         internal string Name { get; private set; }
         internal int Count { get; set; }
+        internal int MaxCount { get; private set; }
+        internal string Id { get; private set; }
 
         internal Equipment(string name, int count)
         {
             Name = name;
             Count = count;
+            MaxCount = Count;
+            Id = string.Join('-', Name.Split(' ').Select(s => s.Substring(0, 2)));
         }
 
-        public override string ToString() => $"{Name} (осталось :{Count})";
+        internal string Status() => $"{Id} {Count}/{MaxCount}";
+
+        public override string ToString() => $"{Name} {Count}/{MaxCount} (Id:{Id})";
     }
 }

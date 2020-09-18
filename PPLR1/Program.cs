@@ -1,4 +1,6 @@
-﻿namespace PPLR1
+﻿using System;
+
+namespace PPLR1
 {
     internal class Program
     {
@@ -15,6 +17,8 @@
                 MLQplanner planner = new MLQplanner(OutputMode.Console, xml.QuantTime, xml.MaxCpuBurst,
                     xml.MaxThreadPriority, xml.Equipments, xml.Students, xml.Teachers);
             }
+
+            Console.ReadLine();
         }
     }
 }

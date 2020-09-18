@@ -1,4 +1,6 @@
-﻿namespace PPLR2
+﻿using System;
+
+namespace PPLR2
 {
     class Program
     {
@@ -20,6 +22,8 @@
                     new SemaphorePlanner(OutputMode.Console, xml.Cards, xml.ThreadsCount, xml.Pause);
                     break;
             }
+
+            Console.ReadLine();
         }
     }
 }

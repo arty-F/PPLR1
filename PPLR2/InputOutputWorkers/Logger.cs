@@ -39,7 +39,7 @@ namespace PPLR2
         /// <param name="pause">Пауза.</param>
         internal void LogInfo(PlainType type, int cardsCount, int threadCount, int pause)
         {
-            sb.AppendLine($"Анализ коллекции из {cardsCount} карт в {threadCount} потоках с задержкой {pause} мс.");
+            sb.AppendLine($"Анализ коллекции из {cardsCount} карт, при ограниченнии количества одновременно работающих потоков {threadCount}, с задержкой {pause} мс.");
             sb.Append("Для планировки используется ");
             sb.AppendLine(type switch
             {

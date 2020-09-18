@@ -20,6 +20,8 @@ namespace PPLR1
         protected DateTime time = DateTime.Now;
         protected Logger logger;
         protected PlainType plainType;
+        protected int currentQuantNumber = 0;
+        protected List<Student> studentsLogList = new List<Student>();
 
         internal AbstractPlanner(OutputMode mode = OutputMode.Console, int quantDuration = 100, int maxCpuBurst = 50, int maxThreadPriority = 100,
                           IEnumerable<Equipment> equipments = null, IEnumerable<Student> students = null, IEnumerable<Teacher> teachers = null)
@@ -31,7 +33,8 @@ namespace PPLR1
             if (students == null)
                 students = DataGenerator.GetStudents(this.equipments, maxCpuBurst, maxThreadPriority).OrderBy(s => s.Priority);
 
-            this.students = students.OrderBy(s => s.Priority).ToList();              
+            this.students = students.OrderBy(s => s.Priority).ToList();
+            studentsLogList.AddRange(this.students);
             logger.LogStudents(this.students);                          //Вывод отсортированного списка студентов                         
             logger.LogResources(this.teachers, this.equipments);        //Вывод списка ресурсов
         }
@@ -66,11 +69,11 @@ namespace PPLR1
         {
             lock (students)
             {
-                if (students.Count > 0)
+                if (students.Where(s => s.SubjectToPassing.RemainingTime > 0).Any() )
                 {
-                    while (students.Count > 0 && CheckResources(HigherPriorityStudent()))
+                    while (students.Where(s => s.SubjectToPassing.RemainingTime > 0).Any() && CheckResources(HigherPriorityStudent()))
                     {
-                        ExamProcess exam = new ExamProcess(ref students, teachers.Where(t => t.NumberOfStudents > 0).FirstOrDefault(), equipments, logger, plainType, queueLevel);
+                        ExamProcess exam = new ExamProcess(ref students,teachers.Where(t => t.NumberOfStudents > 0).FirstOrDefault(), equipments, logger, plainType, queueLevel);
                         Thread t = new Thread(StartPassExam);
                         threads.Add(t);
                         t.Start(exam);
@@ -83,6 +86,23 @@ namespace PPLR1
                 {
                     logger.LogResult(threads.Count, time);
                 }
+            }
+        }
+
+        protected void ShowStatus()
+        {
+            while (true)
+            {
+                lock (students)
+                {
+                    logger.LogCurrentState(teachers, equipments, studentsLogList, currentQuantNumber);
+                    if (studentsLogList.All(s => s.SubjectToPassing.RemainingTime == 0))
+                    {
+                        break;
+                    }
+                }
+                Thread.Sleep(quantDuration);
+                ++currentQuantNumber;
             }
         }
 

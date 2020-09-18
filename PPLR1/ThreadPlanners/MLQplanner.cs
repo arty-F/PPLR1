@@ -30,6 +30,7 @@ namespace PPLR1
                 studentsQueue.Add(new List<Student>());
 
             plainType = PlainType.MLQ;
+            new Thread(ShowStatus).Start();
             StartMaxThreads();
         }
 

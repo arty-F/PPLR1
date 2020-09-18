@@ -24,6 +24,7 @@ namespace PPLR1
             : base(mode, quantDuration, maxCpuBurst, maxThreadPriority, equipments, LCFSsort(students), teachers)
         {
             plainType = PlainType.LCFS;
+            new Thread(ShowStatus).Start();
             StartMaxThreads();
         }
 

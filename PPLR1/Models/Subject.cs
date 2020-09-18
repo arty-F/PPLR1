@@ -18,6 +18,8 @@ namespace PPLR1.Models
             RemainingTime = remainingTime;
         }
 
-        public override string ToString() => $"{string.Join(" - ", EquipmentNames)} (CPU Burst:{RemainingTime})";
+        internal string Status() => $"{RemainingTime}";
+
+        public override string ToString() => $"{string.Join(" , ", EquipmentNames)} ({RemainingTime} CPU)";
     }
 }
