@@ -14,16 +14,12 @@ namespace PPLR1.Models
         internal Teacher Teacher { get; }
         internal List<Equipment> Equipments { get; }
         internal int QueueLevel { get; }
-        private Logger logger;
-        private PlainType plainType;
 
-        internal ExamProcess(ref List<Student> students, Teacher teacher, IEnumerable<Equipment> equipments, Logger logger, PlainType plainType, int queueLevel = 0)
+        internal ExamProcess(ref List<Student> students, Teacher teacher, IEnumerable<Equipment> equipments, int queueLevel = 0)
         {
             Teacher = teacher;
             Equipments = equipments.ToList();
             QueueLevel = queueLevel;
-            this.logger = logger;
-            this.plainType = plainType;
 
             TakeResources(ref students);
         }
@@ -56,8 +52,6 @@ namespace PPLR1.Models
                 if (Teacher.NumberOfStudents < 1)
                     throw new Exception($"Преподаватель <{Teacher}> уже занят.");
                 --Teacher.NumberOfStudents;
-
-                //logger.LogTakenResources(this, plainType, QueueLevel);
             }
         }
 
@@ -82,8 +76,6 @@ namespace PPLR1.Models
                     Student.CurrentState = CurrentThreadState.F;
                 
                 ++Teacher.NumberOfStudents;
-
-                //logger.LogReleasedResources(this, threadId, plainType, QueueLevel);
             }
         }
     }

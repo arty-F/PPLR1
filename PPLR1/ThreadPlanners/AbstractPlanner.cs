@@ -73,7 +73,7 @@ namespace PPLR1
                 {
                     while (students.Where(s => s.SubjectToPassing.RemainingTime > 0).Any() && CheckResources(HigherPriorityStudent()))
                     {
-                        ExamProcess exam = new ExamProcess(ref students,teachers.Where(t => t.NumberOfStudents > 0).FirstOrDefault(), equipments, logger, plainType, queueLevel);
+                        ExamProcess exam = new ExamProcess(ref students,teachers.Where(t => t.NumberOfStudents > 0).FirstOrDefault(), equipments, queueLevel);
                         Thread t = new Thread(StartPassExam);
                         threads.Add(t);
                         t.Start(exam);
@@ -81,10 +81,6 @@ namespace PPLR1
 
                     if (threads.Where(t => t.ManagedThreadId != Thread.CurrentThread.ManagedThreadId).All(t => t.ThreadState == ThreadState.Stopped))
                         throw new Exception("Deadlock.");
-                }
-                else if (threads.Where(t => t.ManagedThreadId != Thread.CurrentThread.ManagedThreadId).All(t => t.ThreadState == ThreadState.Stopped))
-                {
-                    logger.LogResult(threads.Count, time);
                 }
             }
         }
@@ -98,6 +94,7 @@ namespace PPLR1
                     logger.LogCurrentState(teachers, equipments, studentsLogList, currentQuantNumber);
                     if (studentsLogList.All(s => s.SubjectToPassing.RemainingTime == 0))
                     {
+                        logger.LogResult(threads.Count, time);
                         break;
                     }
                 }

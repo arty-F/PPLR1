@@ -58,9 +58,12 @@ namespace PPLR1
         protected override void StartPassExam(object examProcess)
         {
             var exam = examProcess as ExamProcess;
-            for (int i = 0; i < exam.RemainingCpuBurst(); i++)
+            while (exam.Student.SubjectToPassing.RemainingTime > 0)
+            {
                 Thread.Sleep(quantDuration);
-
+                --exam.Student.SubjectToPassing.RemainingTime;
+            }     
+                
             EndPassExam(exam);
         }
 

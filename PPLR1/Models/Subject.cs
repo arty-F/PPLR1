@@ -20,6 +20,6 @@ namespace PPLR1.Models
 
         internal string Status() => $"{RemainingTime}";
 
-        public override string ToString() => $"{string.Join(" , ", EquipmentNames)} ({RemainingTime} CPU)";
+        public override string ToString() => $"{string.Join(", ", EquipmentNames)} ({RemainingTime} CPU)";
     }
 }

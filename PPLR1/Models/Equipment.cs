@@ -17,7 +17,7 @@ namespace PPLR1.Models
             Name = name;
             Count = count;
             MaxCount = Count;
-            Id = string.Join('-', Name.Split(' ').Select(s => s.Substring(0, 2)));
+            Id = string.Join('-', Name.Split(' ').Select(s => s.Substring(0, 3)));
         }
 
         internal string Status() => $"{Id} {Count}/{MaxCount}";

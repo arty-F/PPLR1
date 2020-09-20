@@ -37,7 +37,7 @@ namespace PPLR1
         internal void LogStudents(IEnumerable<Student> students)
         {
             sb.AppendLine("Сформирован список студентов по приоритету:");
-            students.ToList().ForEach(s => sb.AppendLine(s + "\t\tТребуется: " + s.SubjectToPassing));
+            students.ToList().ForEach(s => sb.AppendLine(s + "\t: " + s.SubjectToPassing));
             Output();
         }
 
@@ -46,9 +46,6 @@ namespace PPLR1
         /// </summary>
         internal void LogTakenResources(ExamProcess exam, PlainType plainType, int queueLevel)
         {
-            //if (plainType == PlainType.MLQ)
-            //    sb.Append($"(q :{queueLevel}) ");
-            
             sb.Append($"{exam.Student.Status()} started | ");
             foreach (var eqName in exam.Student.SubjectToPassing.EquipmentNames)
                 sb.Append($"<{exam.Equipments.Where(e => e.Name == eqName).FirstOrDefault().Status()}> ");
