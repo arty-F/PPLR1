@@ -13,7 +13,7 @@ namespace PPLR2
         protected int pause { get; }
         protected Logger logger { get; }
         protected CardController cardController { get; }
-        private DateTime startTime { get; } = DateTime.Now;
+        private DateTime startTime { get; }
         private double linearTime;
 
         internal AbstractPlanner(OutputMode mode, PlainType plainType, IEnumerable<Card> cards, int threadCount, int pause)
@@ -25,6 +25,7 @@ namespace PPLR2
             this.plainType = plainType;
             logger = new Logger(mode);
             logger.LogInfo(this.plainType, cardController.Cards.Count, threadCount, pause);
+            startTime = DateTime.Now;
         }
 
         /// <summary>
@@ -32,7 +33,8 @@ namespace PPLR2
         /// </summary>
         protected void GetResult()
         {
-            logger.LogResult(cardController.CardsFullCollection, linearTime, (DateTime.Now - startTime).TotalSeconds);
+            var totalSec = (DateTime.Now - startTime).TotalSeconds;
+            logger.LogResult(cardController.CardsFullCollection, linearTime, totalSec);
         }
 
         /// <summary>

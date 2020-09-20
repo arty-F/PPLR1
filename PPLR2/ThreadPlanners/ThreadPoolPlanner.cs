@@ -6,11 +6,14 @@ namespace PPLR2
 {
     internal class ThreadPoolPlanner : AbstractPlanner
     {
+        private Semaphore sem;
+
         public ThreadPoolPlanner(OutputMode mode, IEnumerable<Card> cards, int threadCount, int pause) :
             base(mode, PlainType.ThreadPool, cards, threadCount < Environment.ProcessorCount ? Environment.ProcessorCount : threadCount, pause)
         {
             ThreadPool.SetMaxThreads(threadCount, 1);
             ThreadPool.SetMinThreads(threadCount, 1);
+            sem = new Semaphore(threadCount, threadCount);
 
             StartMaxThreads();
         }
@@ -31,7 +34,7 @@ namespace PPLR2
 
             while (true)                            //Ожидание завершения работы пулом потоков
             {
-                Thread.Sleep(100);
+                Thread.Sleep(10);
                 lock (cardController)
                     if (!cardController.HasCards() && GetBusyThreadsCount() == 0)
                         break;
@@ -43,7 +46,10 @@ namespace PPLR2
 
         protected override void Analysis(object card)
         {
+            sem.WaitOne();
             Thread.Sleep(pause);
+            sem.Release();
+
             lock (cardController)
                 cardController.RemoveFromFullCollection(card as Card);
             

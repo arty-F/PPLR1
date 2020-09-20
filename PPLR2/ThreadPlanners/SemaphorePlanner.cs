@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
@@ -22,41 +23,35 @@ namespace PPLR2
         internal SemaphorePlanner(OutputMode mode, IEnumerable<Card> cards, int threadCount, int pause) :
             base(mode, PlainType.ThreadArraySemaphore, cards, threadCount, pause)
         {
-            sem = new Semaphore(0, threadCount);
+            sem = new Semaphore(threadCount, threadCount);
             StartMaxThreads();
         }
 
         protected override void StartMaxThreads()
         {
-            sem.Release(threadCount);                           //Освобождаем семафор
-
-            lock (threads)
-                lock (cardController)
-                    while (cardController.HasCards())           //Запуск анализа каждой карты в отдельном потоке
-                    {
-                        Thread t = new Thread(Analysis);
-                        threads.Add(t);
-                        t.Start(cardController.GetNextCard());
-                    }
+            lock (cardController)
+                while (cardController.HasCards())           //Запуск анализа каждой карты в отдельном потоке
+                {
+                    Thread t = new Thread(Analysis);
+                    threads.Add(t);
+                    t.Start(cardController.GetNextCard());
+                }
         }
 
         protected override void Analysis(object card)
         {
             sem.WaitOne();
             Thread.Sleep(pause);
-            lock (cardController)
-                cardController.RemoveFromFullCollection(card as Card);
-            
-            lock (logger)
-            {
-                logger.LogCard(card as Card, Thread.CurrentThread.ManagedThreadId);
-
-                lock (threads)
-                    //Если все потоки, кроме текущего, уже остановлены, то выводим результаты
-                    if (threads.Where(t => t.ManagedThreadId != Thread.CurrentThread.ManagedThreadId).All(t => t.ThreadState == ThreadState.Stopped))
-                        GetResult();
-            }
             sem.Release();
+
+            lock (cardController)
+            {
+                cardController.RemoveFromFullCollection(card as Card);
+                logger.LogCard(card as Card, Thread.CurrentThread.ManagedThreadId);
+                //Если все потоки, кроме текущего, уже остановлены, то выводим результаты
+                if (threads.Where(t => t.ManagedThreadId != Thread.CurrentThread.ManagedThreadId).All(t => t.ThreadState == ThreadState.Stopped))
+                    GetResult();
+            }
         }
     }
 }

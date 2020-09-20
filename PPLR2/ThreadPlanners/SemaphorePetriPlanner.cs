@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
@@ -64,22 +65,17 @@ namespace PPLR2
         protected override void Analysis(object card)
         {
             SemaphoreWaitOne();
-
             Thread.Sleep(pause);
-            lock (cardController)
-                cardController.RemoveFromFullCollection(card as Card);
-            
-            lock (logger)
-            {
-                logger.LogCard(card as Card, Thread.CurrentThread.ManagedThreadId);
-
-                lock (threads)
-                    //Если все потоки, кроме текущего, уже остановлены, то выводим результаты
-                    if (threads.Where(t => t.ManagedThreadId != Thread.CurrentThread.ManagedThreadId).All(t => t.ThreadState == ThreadState.Stopped))
-                        GetResult();
-            }
-
             SemaphoreReleaseOne();
+
+            lock (cardController)
+            {
+                cardController.RemoveFromFullCollection(card as Card);
+                logger.LogCard(card as Card, Thread.CurrentThread.ManagedThreadId);
+                //Если все потоки, кроме текущего, уже остановлены, то выводим результаты
+                if (threads.Where(t => t.ManagedThreadId != Thread.CurrentThread.ManagedThreadId).All(t => t.ThreadState == ThreadState.Stopped))
+                    GetResult();
+            }
         }
     }
 }

@@ -26,7 +26,7 @@ namespace PPLR1
            : base(mode, quantDuration, maxCpuBurst, maxThreadPriority, equipments, students, teachers)
         {
             //Инициализация необходимого количества списков
-            for (int i = 0; i < this.students.Max(s => s.SubjectToPassing.RemainingTime); i++)
+            for (int i = 0; i < this.students.Max(s => s.SubjectToPassing.RemainingTime) + 1; i++)
                 studentsQueue.Add(new List<Student>());
 
             plainType = PlainType.MLQ;
@@ -67,12 +67,12 @@ namespace PPLR1
             {
                 lock (studentsQueue)
                 {
-                    if (exam.Student.SubjectToPassing.RemainingTime > 0)            //Если еще осталось CPU burst
+                    if (exam.Student.SubjectToPassing.RemainingTime > 0)                        //Если еще осталось CPU burst
                     {
-                        if (exam.QueueLevel == queueLevel)                          //Если выполняется все та же очередь                                                                 
-                            studentsQueue[queueLevel + 1].Add(exam.Student);        //Добавляем студента в след. очередь
-                        else                                                        //Если выполняется уже следующая
-                            studentsQueue[queueLevel].Add(exam.Student);            //Добавляем в нее студента
+                        if (exam.QueueLevel == queueLevel)                                      //Если выполняется все та же очередь 
+                            studentsQueue.ElementAtOrDefault(queueLevel + 1).Add(exam.Student); //Добавляем студента в след. очередь
+                        else                                                                    //Если выполняется уже следующая
+                            studentsQueue.ElementAtOrDefault(queueLevel).Add(exam.Student);     //Добавляем в нее студента
                     }
                     //Если текущая очередь пустая и эта очередь не последняя
                     if (students.Count == 0 && studentsQueue.ElementAtOrDefault(queueLevel + 1) != null)

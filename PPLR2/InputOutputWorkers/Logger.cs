@@ -45,7 +45,7 @@ namespace PPLR2
             {
                 PlainType.ThreadArraySemaphore => "массив потоков, сфемафор.",
                 PlainType.ThreadArraySemaphorePetri => "массив потоков, сеть Петри моделирующая семафор.",
-                PlainType.ThreadPool => "системный пул потоков. (Количество потоков не может быть меньше количества ядер)",
+                PlainType.ThreadPool => "системный пул потоков.",
                 PlainType.ThreadPoolPetri => "пул потоков, сеть Петри.",
                 _ => throw new Exception("Неверный тип планирования.")
             });

@@ -58,7 +58,7 @@ namespace PPLR1
         //Возвращает студента с максимальным приоритетом
         protected Student HigherPriorityStudent()
         {
-            return students.Where(s => s.Priority == students.Min(s => s.Priority)).First();
+            return students.Where(s => s.Priority == students.ToList().Min(st => st.Priority)).First();
         }
 
         /// <summary>
