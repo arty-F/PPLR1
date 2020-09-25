@@ -18,7 +18,7 @@ namespace PPLR2
         /// </summary>
         internal List<Card> CardsFullCollection { get; set; } = new List<Card>();
         internal int currentCardIndex = 0;                                           //текущий индекс считывания карт
-        
+
         /// <summary>
         /// Создать новый экземпляр класса. Необходима коллекция карт.
         /// </summary>
@@ -40,7 +40,7 @@ namespace PPLR2
         /// <summary>
         /// Получить следующую карту для анализа.
         /// </summary>
-        internal Card GetNextCard() 
+        internal Card GetNextCard()
         {
             if (HasCards())
                 return Cards.ElementAt(currentCardIndex++);
@@ -54,8 +54,11 @@ namespace PPLR2
         /// <param name="card">Карта, которую необходимо удалить из коллекции.</param>
         internal void RemoveFromFullCollection(Card card)
         {
+            lock (CardsFullCollection)
+            {
                 if (CardsFullCollection.Contains(card))
                     CardsFullCollection.Remove(card);
+            }
         }
     }
 }

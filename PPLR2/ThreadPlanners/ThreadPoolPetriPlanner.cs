@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 namespace PPLR2
@@ -22,12 +23,11 @@ namespace PPLR2
         private void RunPool()
         {
             lock (pool)
-                lock (cardController)
-                    while (cardController.HasCards() && busyThreadsCount < threadCount)
-                    {
-                        ++busyThreadsCount;
-                        ThreadPool.QueueUserWorkItem(Analysis, cardController.GetNextCard());
-                    }
+                while (cardController.HasCards() && busyThreadsCount < threadCount)
+                {
+                    ++busyThreadsCount;
+                    ThreadPool.QueueUserWorkItem(Analysis, cardController.GetNextCard());
+                }
         }
 
         private void EndWork()
@@ -39,32 +39,24 @@ namespace PPLR2
         protected override void StartMaxThreads()
         {
             RunPool();
-
-            while (true)
-            {
-                Thread.Sleep(100);              //Ожидание завершения работы пулом потоков
-                lock (pool)
-                    lock (cardController)
-                        if (!cardController.HasCards() && busyThreadsCount == 0)
-                            break;
-            }
-
-            lock (logger)                       //Вывод результатов
-                GetResult();
         }
 
         protected override void Analysis(object card)
         {
-            Thread.Sleep(pause);
-            lock (cardController)
-                cardController.RemoveFromFullCollection(card as Card);
-            
-            lock (logger)
-                logger.LogCard(card as Card, Thread.CurrentThread.ManagedThreadId);
+            if (startTime == DateTime.MinValue)                         //Установка времени начала работы алгоритма
+                startTime = DateTime.Now;
+            Stopwatch stopWatch = new Stopwatch();
+
+            stopWatch.Start();                                          //Запуск таймера
+            cardController.RemoveFromFullCollection(card as Card);      //Обработка карты
+            while (stopWatch.ElapsedMilliseconds < pause) { }           //Пауза
 
             EndWork();
-            
             RunPool();
+
+            logger.LogCard(card as Card, Thread.CurrentThread.ManagedThreadId);
+            if (--cardsLeft == 0)
+                GetResult();
         }
     }
 }

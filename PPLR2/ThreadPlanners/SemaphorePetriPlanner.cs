@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
@@ -30,29 +31,24 @@ namespace PPLR2
 
         protected override void StartMaxThreads()
         {
-            lock (threads)
-                lock (cardController)
-                    while (cardController.HasCards())           //Запуск анализа каждой карты в отдельном потоке
-                    {
-                        Thread t = new Thread(Analysis);
-                        threads.Add(t);
-                        t.Start(cardController.GetNextCard());
-                    }
+            while (cardController.HasCards())           //Запуск анализа каждой карты в отдельном потоке
+            {
+                Thread t = new Thread(Analysis);
+                threads.Add(t);
+                t.Start(cardController.GetNextCard());
+            }
         }
 
         //Имитация ожидания доступа к семафору
         private void SemaphoreWaitOne()
         {
             while (true)
-            {
                 lock (sem)
                     if (semRemaining > 0)
                     {
                         --semRemaining;
                         break;
                     }
-                Thread.Sleep(1);
-            }
         }
 
         //Имитация высвобождения семафора
@@ -64,18 +60,19 @@ namespace PPLR2
 
         protected override void Analysis(object card)
         {
+            if (startTime == DateTime.MinValue)                         //Установка времени начала работы алгоритма
+                startTime = DateTime.Now;
+            Stopwatch stopWatch = new Stopwatch();
+
             SemaphoreWaitOne();
-            Thread.Sleep(pause);
+            stopWatch.Start();                                          //Запуск таймера
+            cardController.RemoveFromFullCollection(card as Card);      //Обработка карты
+            while (stopWatch.ElapsedMilliseconds < pause) { }           //Пауза
             SemaphoreReleaseOne();
 
-            lock (cardController)
-            {
-                cardController.RemoveFromFullCollection(card as Card);
-                logger.LogCard(card as Card, Thread.CurrentThread.ManagedThreadId);
-                //Если все потоки, кроме текущего, уже остановлены, то выводим результаты
-                if (threads.Where(t => t.ManagedThreadId != Thread.CurrentThread.ManagedThreadId).All(t => t.ThreadState == ThreadState.Stopped))
-                    GetResult();
-            }
+            logger.LogCard(card as Card, Thread.CurrentThread.ManagedThreadId);
+            if (--cardsLeft == 0)
+                GetResult();
         }
     }
 }

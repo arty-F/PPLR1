@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 namespace PPLR2
@@ -18,43 +19,27 @@ namespace PPLR2
             StartMaxThreads();
         }
 
-        // Возвращает количество работающих потоков в пуле
-        private int GetBusyThreadsCount()
-        {
-            ThreadPool.GetAvailableThreads(out int work, out int _);
-            ThreadPool.GetMaxThreads(out int all, out int _);
-            return all - work;
-        }
-
         protected override void StartMaxThreads()
         {
-            lock (cardController)
-                while (cardController.HasCards())   //Запуск задач
-                    ThreadPool.QueueUserWorkItem(Analysis, cardController.GetNextCard());
-
-            while (true)                            //Ожидание завершения работы пулом потоков
-            {
-                Thread.Sleep(10);
-                lock (cardController)
-                    if (!cardController.HasCards() && GetBusyThreadsCount() == 0)
-                        break;
-            }
-
-            lock (logger)                           //Вывод результатов
-                GetResult();
+            while (cardController.HasCards())                           //Запуск задач
+                ThreadPool.QueueUserWorkItem(Analysis, cardController.GetNextCard());
         }
 
         protected override void Analysis(object card)
         {
+            if (startTime == DateTime.MinValue)                         //Установка времени начала работы алгоритма
+                startTime = DateTime.Now;
+            Stopwatch stopWatch = new Stopwatch();
+
             sem.WaitOne();
-            Thread.Sleep(pause);
+            stopWatch.Start();                                          //Запуск таймера
+            cardController.RemoveFromFullCollection(card as Card);      //Обработка карты
+            while (stopWatch.ElapsedMilliseconds < pause) { }           //Пауза
             sem.Release();
 
-            lock (cardController)
-                cardController.RemoveFromFullCollection(card as Card);
-            
-            lock (logger)
-                logger.LogCard(card as Card, Thread.CurrentThread.ManagedThreadId);
+            logger.LogCard(card as Card, Thread.CurrentThread.ManagedThreadId);
+            if (--cardsLeft == 0)
+                GetResult();
         }
     }
 }

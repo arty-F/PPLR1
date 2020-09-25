@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PPLR2
 {
@@ -13,19 +14,20 @@ namespace PPLR2
         protected int pause { get; }
         protected Logger logger { get; }
         protected CardController cardController { get; }
-        private DateTime startTime { get; }
+        protected DateTime startTime { get; set; } = DateTime.MinValue;
         private double linearTime;
+        protected int cardsLeft { get; set; }
 
         internal AbstractPlanner(OutputMode mode, PlainType plainType, IEnumerable<Card> cards, int threadCount, int pause)
         {
             cardController = new CardController(cards);
+            cardsLeft = cards.Count();
             this.threadCount = threadCount;
             this.pause = pause;
             linearTime = (double)(pause * cardController.Cards.Count) / 1000;
             this.plainType = plainType;
             logger = new Logger(mode);
             logger.LogInfo(this.plainType, cardController.Cards.Count, threadCount, pause);
-            startTime = DateTime.Now;
         }
 
         /// <summary>

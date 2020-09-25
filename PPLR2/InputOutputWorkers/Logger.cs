@@ -39,17 +39,20 @@ namespace PPLR2
         /// <param name="pause">Пауза.</param>
         internal void LogInfo(PlainType type, int cardsCount, int threadCount, int pause)
         {
-            sb.AppendLine($"Анализ коллекции из {cardsCount} карт, при ограниченнии количества одновременно работающих потоков {threadCount}, с задержкой {pause} мс.");
-            sb.Append("Для планировки используется ");
-            sb.AppendLine(type switch
+            lock (sb)
             {
-                PlainType.ThreadArraySemaphore => "массив потоков, сфемафор.",
-                PlainType.ThreadArraySemaphorePetri => "массив потоков, сеть Петри моделирующая семафор.",
-                PlainType.ThreadPool => "системный пул потоков.",
-                PlainType.ThreadPoolPetri => "пул потоков, сеть Петри.",
-                _ => throw new Exception("Неверный тип планирования.")
-            });
-            Output();
+                sb.AppendLine($"Анализ коллекции из {cardsCount} карт, при ограниченнии количества одновременно работающих потоков {threadCount}, с задержкой {pause} мс.");
+                sb.Append("Для планировки используется ");
+                sb.AppendLine(type switch
+                {
+                    PlainType.ThreadArraySemaphore => "массив потоков, сфемафор.",
+                    PlainType.ThreadArraySemaphorePetri => "массив потоков, сеть Петри моделирующая семафор.",
+                    PlainType.ThreadPool => "системный пул потоков.",
+                    PlainType.ThreadPoolPetri => "пул потоков, сеть Петри.",
+                    _ => throw new Exception("Неверный тип планирования.")
+                });
+                Output();
+            }
         }
 
         /// <summary>
@@ -59,8 +62,11 @@ namespace PPLR2
         /// <param name="threadId">Ид потока.</param>
         internal void LogCard(Card card, int threadId)
         {
-            sb.Append($"В потоке :{threadId} была считана карта <{card.Rank}, {card.Suit}>.");
-            Output();
+            lock (sb)
+            {
+                sb.Append($"В потоке :{threadId} была считана карта <{card.Rank}, {card.Suit}>.");
+                Output();
+            }
         }
 
         /// <summary>
@@ -71,15 +77,18 @@ namespace PPLR2
         /// <param name="parallelTime">Время параллельной обработки.</param>
         internal void LogResult(IEnumerable<Card> cards, double linearTime, double parallelTime)
         {
-            sb.AppendLine(Environment.NewLine + $"Обработка всех карт завершена.");
-            sb.AppendLine($"Длительность обработки: {parallelTime} секунд.");
-            sb.AppendLine($"Время линейной обработки заняло бы: {linearTime} секунд.");
+            lock (sb)
+            {
+                sb.AppendLine(Environment.NewLine + $"Обработка всех карт завершена.");
+                sb.AppendLine($"Длительность обработки: {parallelTime} секунд.");
+                sb.AppendLine($"Время линейной обработки заняло бы: {linearTime} секунд.");
 
-            sb.AppendLine($"В данной колоде, для полной коллекции, отсутствуют следующие карты:");
-            for (int i = 0; i < cards.Count(); i++)
-                sb.AppendLine($"{i + 1}. {cards.ElementAtOrDefault(i).Rank}, {cards.ElementAtOrDefault(i).Suit}.");
+                sb.AppendLine($"В данной колоде, для полной коллекции, отсутствуют следующие карты:");
+                for (int i = 0; i < cards.Count(); i++)
+                    sb.AppendLine($"{i + 1}. {cards.ElementAtOrDefault(i).Rank}, {cards.ElementAtOrDefault(i).Suit}.");
 
-            Output();
+                Output();
+            }
         }
 
         //Вывод результатов в соответствии с выбранным методом вывода
