@@ -15,6 +15,7 @@ namespace PPLR2
         private OutputMode mode;
         private StringBuilder sb = new StringBuilder();
         private string path = "";
+        private PlainType lastUsingType;
 
         /// <summary>
         /// Создать экземпляр логгера, необходимо передать режим вывода <seealso cref="OutputMode"/>.
@@ -53,6 +54,8 @@ namespace PPLR2
                 });
                 Output();
             }
+
+            lastUsingType = type;
         }
 
         /// <summary>
@@ -79,7 +82,15 @@ namespace PPLR2
         {
             lock (sb)
             {
-                sb.AppendLine(Environment.NewLine + $"Обработка всех карт завершена.");
+                sb.Append(Environment.NewLine + $"Обработка всех карт завершена c помощью ");
+                sb.AppendLine(lastUsingType switch
+                {
+                    PlainType.ThreadArraySemaphore => "массива потоков, сфемафора.",
+                    PlainType.ThreadArraySemaphorePetri => "массива потоков и сети Петри моделирующей семафор.",
+                    PlainType.ThreadPool => "системного пула потоков.",
+                    PlainType.ThreadPoolPetri => "пула потоков моделируемого сетью Петри.",
+                    _ => throw new Exception("Неверный тип планирования.")
+                });
                 sb.AppendLine($"Длительность обработки: {parallelTime} секунд.");
                 sb.AppendLine($"Время линейной обработки заняло бы: {linearTime} секунд.");
 
